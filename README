@@ -1,0 +1,6 @@
+Vita
+====
+
+Vita is a vi clone in a HTML textarea.  It aims to provide a serviceable web-based vi clone inside the browser, especially on devices that don't have arrow keys, like the iPhone.
+
+It differs from related projects (like jsvi) in that it only requires a textarea.

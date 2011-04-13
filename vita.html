@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>vita - vi in a textarea</title>
+<style>
+#vi {
+  font-family: monospace;
+  border: none;
+}
+</style>
+<head>
+<body>
+<textarea id="vi" rows="40" cols="80">
+#include &lt;stdio.h&gt;
+
+main() {
+  printf("Hello, world!\n");
+  return 0;
+}
+</textarea>
+<script>
+var vi = document.getElementById('vi');
+
+var modes = {
+  NORMAL: 0,
+  INSERT: 1,
+};
+
+// Not all of them are available via String.fromCharCode
+var keys = {
+  ESC: 27,
+  A: 65,
+  H: 72,
+  I: 73,
+  J: 74,
+  K: 75,
+  L: 76,
+  O: 79,
+}
+
+var state = {
+  mode: modes.NORMAL,
+};
+
+vi.onblur = function (e) {
+  state.mode = modes.NORMAL;
+};
+
+vi.onkeydown = function (e) {
+  if (e.keyCode === keys.ESC) {
+    state.mode = modes.NORMAL;
+  }
+
+  if (state.mode === modes.NORMAL) {
+    e.preventDefault();
+
+    // ctrlKey: false
+    // shiftKey: false
+
+    switch (e.keyCode) {
+      case keys.A:
+      case keys.I:
+      case keys.O:
+        state.mode = modes.INSERT;
+        break;
+      case keys.H:
+        vi.setSelectionRange(vi.selectionStart - 1, vi.selectionStart - 1);
+        break;
+      // case keys.J:
+      // case keys.K:
+      case keys.L:
+        vi.setSelectionRange(vi.selectionStart + 1, vi.selectionStart + 1);
+        break;
+    }
+  }
+};
+</script>
+</body>
+</html>
