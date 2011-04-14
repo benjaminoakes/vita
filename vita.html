@@ -149,7 +149,13 @@ vi.onkeydown = function (e) {
         mode(modes.INSERT);
         break;
       case keys.O:
-        cursor(endOfLine() + 1);
+        // Not quite, but close enough for now.
+        if (e.shiftKey) {
+          cursor(beginningOfLine() - 1);
+        } else {
+          cursor(endOfLine() + 1);
+        }
+
         mode(modes.INSERT);
         break;
 
