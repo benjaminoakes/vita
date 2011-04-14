@@ -14,12 +14,6 @@
 
 <form id="vita">
 <textarea id="vi" rows="20" cols="80" autofocus="autofocus">
-#include &lt;stdio.h&gt;
-
-main() {
-  printf("Hello, world!\n");
-  return 0;
-}
 </textarea>
 <input type="text" id="statusbar" />
 </form>
@@ -62,6 +56,8 @@ vi.onblur = function (e) {
   mode(modes.NORMAL);
 };
 
+//--
+// FIXME this doesn't scroll the textarea if the cursor moves out of the visible area
 function cursor(charIndex) {
   if (undefined === charIndex) {
     return vi.selectionStart;
@@ -87,7 +83,7 @@ function lineIndices(charIndex) {
       lineNumber = 0,
       currentCharIndex = 0,
       i = 0,
-      beginningOfThisLine = 0;
+      beginningOfThisLine = 0,
       beginningOfNextLine = 0;
 
   lineLengths = vi.value.
@@ -95,8 +91,6 @@ function lineIndices(charIndex) {
     map(function(l) { return l.length + 1; });
 
   while (currentCharIndex <= charIndex) {
-    console.debug('currentCharIndex: ' + currentCharIndex);
-    console.debug('lineNumber: ' + lineNumber);
     currentCharIndex += lineLengths[lineNumber];
     lineNumber += 1;
   }
@@ -148,14 +142,23 @@ vi.onkeydown = function (e) {
       case keys.H:
         cursor(cursor() - 1);
         break;
-      // case keys.J:
-      // case keys.K:
+      case keys.J:
+        // Not quite, but close enough for now
+        cursor(lineIndices(cursor())[1] + 1);
+        break;
+      case keys.K:
+        // Not quite, but close enough for now
+        cursor(lineIndices(cursor())[0] - 1);
+        break;
       case keys.L:
         cursor(cursor() + 1);
         break;
     }
   }
 };
+
+// Have vita load itself :)
+vi.value = document.getElementsByTagName('script')[0].innerHTML;
 </script>
 </body>
 </html>
