@@ -106,6 +106,14 @@ function lineIndices(charIndex) {
   return [beginningOfThisLine, beginningOfNextLine - 1];
 }
 
+function beginningOfLine() {
+  return lineIndices(cursor())[0];
+}
+
+function endOfLine() {
+  return lineIndices(cursor())[1];
+}
+
 vi.onkeydown = function (e) {
   if (
       e.keyCode === keys.ESC
@@ -119,14 +127,29 @@ vi.onkeydown = function (e) {
 
     switch (e.keyCode) {
       case keys['0']:
-        cursor(lineIndices(cursor())[0]);
+        cursor(beginningOfLine());
         break;
       case keys.$:
-        cursor(lineIndices(cursor())[1]);
+        cursor(endOfLine());
         break;
       case keys.A:
+        if (e.shiftKey) {
+          cursor(endOfLine());
+        } else {
+          cursor(cursor + 1);
+        }
+
+        mode(modes.INSERT);
+        break;
       case keys.I:
+        if (e.shiftKey) {
+          cursor(beginningOfLine());
+        }
+
+        mode(modes.INSERT);
+        break;
       case keys.O:
+        cursor(endOfLine() + 1);
         mode(modes.INSERT);
         break;
 
