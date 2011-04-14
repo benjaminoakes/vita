@@ -58,11 +58,17 @@ var state = {
 vita.onsubmit = function(e) {
   e.preventDefault();
 
-  // Idea:
-  // if ('w') { localStorage['vita.tmp'] = vi.value; }
+  command = statusbar.value;
 
+  if ('w' === command) {
+    localStorage['vita/tmp'] = vi.value;
+    statusbar.value = 'localStorage["vita/tmp"] ' + String(vi.value.length) + 'C written';
+  }
 
-  statusbar.value = '';
+  // if (match = command.match(/^[%.]s\/([^\/]*)\/([^\/]*)\/[g]$/) {
+  //   console.debug(match);
+  // }
+
   vi.focus();
 };
 
@@ -201,14 +207,17 @@ vi.onkeydown = function (e) {
         break;
 
       case keys[':']:
+        // TODO statusbar.value = ':';
         statusbar.focus();
         break;
     }
   }
 };
 
-// Have vita load itself :)
-vi.value = document.getElementsByTagName('script')[0].innerHTML;
+vi.value = localStorage['vita/tmp'];
+
+// // ...or have vita load itself :)
+// vi.value = document.getElementsByTagName('script')[0].innerHTML;
 </script>
 </body>
 </html>
