@@ -7,6 +7,7 @@
 #vita * {
   font-family: monospace;
   border: none;
+  /* TODO is a block cursor style possible? */
 }
 </style>
 <head>
@@ -136,7 +137,7 @@ vi.onkeydown = function (e) {
         if (e.shiftKey) {
           cursor(endOfLine());
         } else {
-          cursor(cursor + 1);
+          cursor(cursor() + 1);
         }
 
         mode(modes.INSERT);
@@ -145,6 +146,7 @@ vi.onkeydown = function (e) {
         if (e.shiftKey) {
           cursor(beginningOfLine());
         }
+        // Vim seems to do a cursor(cursor() - 1) here...
 
         mode(modes.INSERT);
         break;
