@@ -16,12 +16,13 @@
 <form id="vita">
 <textarea id="vi" rows="20" cols="80" autofocus="autofocus">
 </textarea>
-<input type="text" id="statusbar" />
+<input autocomplete="off" id="statusbar" type="text" />
 </form>
 
 <script>
-var vi = document.getElementById('vi');
-var statusbar = document.getElementById('statusbar');
+var vita = document.getElementById('vita'),
+    vi = document.getElementById('vi'),
+    statusbar = document.getElementById('statusbar');
 
 var modes = {
   NORMAL: 0,
@@ -46,11 +47,18 @@ var keys = {
   L: 76,
   O: 79,
   Q: 81,
-  '[': 219
+  ':': 186,
+  '[': 219,
 }
 
 var state = {
   mode: modes.NORMAL,
+};
+
+vita.onsubmit = function(e) {
+  e.preventDefault();
+  statusbar.value = '';
+  vi.focus();
 };
 
 vi.onblur = function (e) {
@@ -123,6 +131,8 @@ vi.onkeydown = function (e) {
     mode(modes.NORMAL);
   }
 
+  console.log('e.keyCode: ' + e.keyCode);
+
   if (state.mode === modes.NORMAL) {
     e.preventDefault();
 
@@ -183,6 +193,10 @@ vi.onkeydown = function (e) {
         break;
       case keys.L:
         cursor(cursor() + 1);
+        break;
+
+      case keys[':']:
+        statusbar.focus();
         break;
     }
   }
