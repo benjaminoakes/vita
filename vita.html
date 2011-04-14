@@ -16,7 +16,7 @@
 <form id="vita">
 <textarea id="vi" rows="20" cols="80" autofocus="autofocus">
 </textarea>
-<input autocomplete="off" id="statusbar" type="text" />
+<input autocomplete="off" id="statusbar" style="width: 50em;" type="text" />
 </form>
 
 <script>
@@ -57,6 +57,11 @@ var state = {
 
 vita.onsubmit = function(e) {
   e.preventDefault();
+
+  // Idea:
+  // if ('w') { localStorage['vita.tmp'] = vi.value; }
+
+
   statusbar.value = '';
   vi.focus();
 };
@@ -185,11 +190,11 @@ vi.onkeydown = function (e) {
         break;
       case keys.J:
         // Not quite, but close enough for now
-        cursor(lineIndices(cursor())[1] + 1);
+        cursor(endOfLine() + 1);
         break;
       case keys.K:
         // Not quite, but close enough for now
-        cursor(lineIndices(cursor())[0] - 1);
+        cursor(beginningOfLine() - 1);
         break;
       case keys.L:
         cursor(cursor() + 1);
