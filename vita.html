@@ -41,12 +41,14 @@ nameFromMode[modes.INSERT] = '-- INSERT --';
 var keys = {
   ESC: 27,
   A: 65,
+  G: 71,
   H: 72,
   I: 73,
   J: 74,
   K: 75,
   L: 76,
   O: 79,
+  Q: 81,
   '[': 219
 }
 
@@ -55,8 +57,17 @@ var state = {
 };
 
 vi.onblur = function (e) {
-  state.mode = modes.NORMAL;
+  mode(modes.NORMAL);
 };
+
+function cursor(charIndex) {
+  if (undefined === charIndex) {
+    return vi.selectionStart;
+  } else {
+    vi.setSelectionRange(charIndex, charIndex);
+    return charIndex;
+  }
+}
 
 function mode(new_mode) {
   if (undefined === new_mode) {
@@ -87,13 +98,23 @@ vi.onkeydown = function (e) {
       case keys.O:
         mode(modes.INSERT);
         break;
+
+      case keys.G:
+        if (e.shiftKey) {
+          cursor(vi.value.length);
+        } else {
+          // NOTE this is Vim's 'gg' -- leaving it at one character for simplicity's sake right now
+          cursor(0);
+        }
+        break;
+
       case keys.H:
-        vi.setSelectionRange(vi.selectionStart - 1, vi.selectionStart - 1);
+        cursor(cursor() - 1);
         break;
       // case keys.J:
       // case keys.K:
       case keys.L:
-        vi.setSelectionRange(vi.selectionStart + 1, vi.selectionStart + 1);
+        cursor(cursor() + 1);
         break;
     }
   }
