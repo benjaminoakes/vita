@@ -13,7 +13,7 @@
 <body>
 
 <form id="vita">
-<textarea id="vi" rows="40" cols="80">
+<textarea id="vi" rows="20" cols="80" autofocus="autofocus">
 #include &lt;stdio.h&gt;
 
 main() {
@@ -40,6 +40,8 @@ nameFromMode[modes.INSERT] = '-- INSERT --';
 // Not all of them are available via String.fromCharCode
 var keys = {
   ESC: 27,
+  0: 48,
+  $: 52,
   A: 65,
   G: 71,
   H: 72,
@@ -69,19 +71,48 @@ function cursor(charIndex) {
   }
 }
 
-function mode(new_mode) {
-  if (undefined === new_mode) {
+function mode(newMode) {
+  if (undefined === newMode) {
     return state.mode;
   } else {
-    state.mode = new_mode;
-    statusbar.value = nameFromMode[new_mode];
+    state.mode = newMode;
+    statusbar.value = nameFromMode[newMode];
     return state.mode;
   }
 }
 
+// Gives the beginning-of-line index for the given charIndex
+function lineIndices(charIndex) {
+  var lineLengths,
+      lineNumber = 0,
+      currentCharIndex = 0,
+      i = 0,
+      beginningOfThisLine = 0;
+      beginningOfNextLine = 0;
+
+  lineLengths = vi.value.
+    split("\n").
+    map(function(l) { return l.length + 1; });
+
+  while (currentCharIndex <= charIndex) {
+    console.debug('currentCharIndex: ' + currentCharIndex);
+    console.debug('lineNumber: ' + lineNumber);
+    currentCharIndex += lineLengths[lineNumber];
+    lineNumber += 1;
+  }
+
+  for (i = 0; i < lineNumber; i += 1) {
+    if (i + 1 < lineNumber) {
+      beginningOfThisLine += lineLengths[i];
+    }
+
+    beginningOfNextLine += lineLengths[i];
+  }
+
+  return [beginningOfThisLine, beginningOfNextLine - 1];
+}
+
 vi.onkeydown = function (e) {
-  console.debug(e.keyCode);
-  console.debug(mode());
   if (
       e.keyCode === keys.ESC
       || (e.ctrlKey && e.keyCode === keys['['])
@@ -93,6 +124,12 @@ vi.onkeydown = function (e) {
     e.preventDefault();
 
     switch (e.keyCode) {
+      case keys['0']:
+        cursor(lineIndices(cursor())[0]);
+        break;
+      case keys.$:
+        cursor(lineIndices(cursor())[1]);
+        break;
       case keys.A:
       case keys.I:
       case keys.O:
