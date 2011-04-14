@@ -59,7 +59,10 @@ vita.onsubmit = function(e) {
   e.preventDefault();
   var command = status();
 
-  if ('w' === command) {
+  if (command.match(/^\s*$/)) {
+    // no-op
+    status('');
+  } else if ('w' === command) {
     localStorage['vita/tmp'] = vi.value;
     status('localStorage["vita/tmp"] ' + String(vi.value.length) + 'C written');
   // } else if (match = command.match(/^[%.]s\/([^\/]*)\/([^\/]*)\/[g]$/) {
