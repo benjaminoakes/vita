@@ -4,13 +4,15 @@
 <meta charset="utf-8">
 <title>vita - vi in a textarea</title>
 <style>
-#vi {
+#vita * {
   font-family: monospace;
   border: none;
 }
 </style>
 <head>
 <body>
+
+<form id="vita">
 <textarea id="vi" rows="40" cols="80">
 #include &lt;stdio.h&gt;
 
@@ -19,13 +21,21 @@ main() {
   return 0;
 }
 </textarea>
+<input type="text" id="statusbar" />
+</form>
+
 <script>
 var vi = document.getElementById('vi');
+var statusbar = document.getElementById('statusbar');
 
 var modes = {
   NORMAL: 0,
   INSERT: 1,
 };
+
+var nameFromMode = {};
+nameFromMode[modes.NORMAL] = '';
+nameFromMode[modes.INSERT] = '-- INSERT --';
 
 // Not all of them are available via String.fromCharCode
 var keys = {
@@ -37,6 +47,7 @@ var keys = {
   K: 75,
   L: 76,
   O: 79,
+  '[': 219
 }
 
 var state = {
@@ -47,22 +58,34 @@ vi.onblur = function (e) {
   state.mode = modes.NORMAL;
 };
 
+function mode(new_mode) {
+  if (undefined === new_mode) {
+    return state.mode;
+  } else {
+    state.mode = new_mode;
+    statusbar.value = nameFromMode[new_mode];
+    return state.mode;
+  }
+}
+
 vi.onkeydown = function (e) {
-  if (e.keyCode === keys.ESC) {
-    state.mode = modes.NORMAL;
+  console.debug(e.keyCode);
+  console.debug(mode());
+  if (
+      e.keyCode === keys.ESC
+      || (e.ctrlKey && e.keyCode === keys['['])
+    ) {
+    mode(modes.NORMAL);
   }
 
   if (state.mode === modes.NORMAL) {
     e.preventDefault();
 
-    // ctrlKey: false
-    // shiftKey: false
-
     switch (e.keyCode) {
       case keys.A:
       case keys.I:
       case keys.O:
-        state.mode = modes.INSERT;
+        mode(modes.INSERT);
         break;
       case keys.H:
         vi.setSelectionRange(vi.selectionStart - 1, vi.selectionStart - 1);
