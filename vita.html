@@ -47,6 +47,7 @@ var keys = {
   L: 76,
   O: 79,
   Q: 81,
+  U: 85,
   ':': 186,
   '[': 219,
 }
@@ -57,7 +58,8 @@ var state = {
 
 vita.onsubmit = function(e) {
   e.preventDefault();
-  var command = status();
+  var command = status(),
+      match;
 
   if (command.match(/^\s*$/)) {
     // no-op
@@ -65,8 +67,9 @@ vita.onsubmit = function(e) {
   } else if ('w' === command) {
     localStorage['vita/tmp'] = vi.value;
     status('localStorage["vita/tmp"] ' + String(vi.value.length) + 'C written');
-  // } else if (match = command.match(/^[%.]s\/([^\/]*)\/([^\/]*)\/[g]$/) {
-  //   console.debug(match);
+  // } else if (command.match(/^%s\/([^\/]*)\/([^\/]*)\/[g]$/) {
+  //   console.debug('got in');
+  //   // console.debug(match);
   } else {
     status('Error: not a vita command: ' + command);
   }
@@ -152,6 +155,7 @@ vi.onkeydown = function (e) {
     mode(modes.NORMAL);
   }
 
+  // FIXME it seems that the iPhone doesn't handle the shift key in quite the same way.
   console.log('e.keyCode: ' + e.keyCode);
 
   if (state.mode === modes.NORMAL) {
