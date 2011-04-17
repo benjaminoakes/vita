@@ -54,6 +54,7 @@ var keys = {
 
 var state = {
   mode: modes.NORMAL,
+  undoBuffer: undefined,
 };
 
 vita.onsubmit = function(e) {
@@ -104,6 +105,10 @@ function mode(newMode) {
   if (undefined === newMode) {
     return state.mode;
   } else {
+    if (newMode === modes.INSERT) {
+      state.undoBuffer = vi.value;
+    }
+
     state.mode = newMode;
     statusbar.value = nameFromMode[newMode];
     return state.mode;
@@ -218,6 +223,12 @@ vi.onkeydown = function (e) {
         break;
       case keys.L:
         cursor(cursor() + 1);
+        break;
+
+      case keys.U:
+        position = cursor();
+        vi.value = state.undoBuffer;
+        cursor(position);
         break;
 
       case keys[':']:
