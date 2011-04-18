@@ -30,7 +30,7 @@ var modes = {
   NORMAL: 0,
   INSERT: 1,
   VISUAL: 2,
-  VISUAL_LINE: 2,
+  VISUAL_LINE: 3,
 };
 
 var nameFromMode = {};
@@ -118,7 +118,7 @@ function cursor(charIndex) {
       return vi.selectionStart;
     }
   } else {
-    if (state.mode === modes.VISUAL) {
+    if (state.mode === modes.VISUAL || state.mode === modes.VISUAL_LINE) {
       sorted = [state.selectionStart, charIndex].sort();
       vi.setSelectionRange(sorted[0], sorted[1]);
     } else {
@@ -247,7 +247,7 @@ function actOn(character) {
       break;
     case 'V':
       if (mode() !== modes.VISUAL_LINE) {
-        mode(modes.VISUAL);
+        mode(modes.VISUAL_LINE);
         state.selectionStart = beginningOfLine();
         cursor(endOfLine());
       } else {
