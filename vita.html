@@ -179,14 +179,24 @@ function endOfLine() {
   return lineIndices(cursor())[1];
 }
 
+function line() {
+  indices = lineIndices(cursor());
+  return vi.value.substr(indices[0], indices[1] - indices[0]);
+}
+
 function actOn(character) {
   switch (character) {
     case '0':
       cursor(beginningOfLine());
       break;
+    case '^':
+      offset = line().search(/[^\s]/);
+      cursor(beginningOfLine() + offset);
+      break;
     case '$':
       cursor(endOfLine());
       break;
+
     case 'A':
       cursor(endOfLine());
       mode(modes.INSERT);
@@ -285,10 +295,16 @@ function onKeyDown(e) {
     // It defaults to a capital, and you have to transform down:
     if (!e.shiftKey) character = character.toLowerCase();
 
+    console.debug('e.keyCode: ' + e.keyCode);
+
     // And now the stuff that fromCharCode doesn't handle correctly:
+    // NOTE some of these might be using the codes for the number keys
     switch (e.keyCode) {
       case 52:
         character = '$';
+        break;
+      case 54:
+        character = '^';
         break;
       case 186:
         character = ':';
