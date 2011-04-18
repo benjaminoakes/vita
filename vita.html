@@ -46,6 +46,24 @@ var state = {
   undoBuffer: undefined,
 };
 
+function write(filename) {
+  var value = vi.value;
+
+  if (undefined === filename) {
+    filename = localStorage['lastFilename'];
+  }
+
+  if (filename) {
+    localStorage['lastFilename'] = filename;
+    filename = 'vita/' + filename;
+    localStorage[filename] = value;
+
+    status('localStorage["' + filename + '"] ' + String(value.split("\n").length) + 'L, ' + String(value.length) + 'C written');
+  } else {
+    status('Could not write: no filename');
+  }
+}
+
 vita.onsubmit = function(e) {
   e.preventDefault();
   var command = status(),
@@ -55,14 +73,9 @@ vita.onsubmit = function(e) {
     // no-op
     status('');
   } else if ('w' === command) {
-    localStorage['vita/tmp'] = vi.value;
-    status('localStorage["vita/tmp"] ' + String(vi.value.length) + 'C written');
-    // TODO:
-  // } else if (match = command.match(/^w (.*?)$/)) {
-  //   filename = 'vita/' + match[1];
-  //   localStorage[filename] = vi.value;
-  //   status('localStorage["' + filename + '"] ' + String(vi.value.length) + 'C written');
-
+    write();
+  } else if (match = command.match(/^w (.*?)$/)) {
+    write(match[1]);
   // } else if (command.match(/^%s\/([^\/]*)\/([^\/]*)\/[g]$/) {
   //   console.debug('got in');
   //   // console.debug(match);
