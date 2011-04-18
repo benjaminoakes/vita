@@ -14,8 +14,10 @@
 <body>
 
 <form id="vita">
-<textarea id="vi" rows="20" cols="80" autofocus="autofocus">
+<!-- TODO no autocompletion (e.g. the suggestions based on stats, rather than what you've entered before), no autocapitalization -->
+<textarea id="vi" rows="20" cols="80" autofocus="autofocus" autocomplete="off">
 </textarea>
+<br />
 <input autocomplete="off" id="statusbar" style="width: 50em;" type="text" />
 </form>
 
@@ -34,21 +36,8 @@ nameFromMode[modes.NORMAL] = '';
 nameFromMode[modes.INSERT] = '-- INSERT --';
 
 // Not all of them are available via String.fromCharCode
-var keys = {
+var keyCodes = {
   ESC: 27,
-  0: 48,
-  $: 52,
-  A: 65,
-  G: 71,
-  H: 72,
-  I: 73,
-  J: 74,
-  K: 75,
-  L: 76,
-  O: 79,
-  Q: 81,
-  U: 85,
-  ':': 186,
   '[': 219,
 }
 
@@ -68,6 +57,12 @@ vita.onsubmit = function(e) {
   } else if ('w' === command) {
     localStorage['vita/tmp'] = vi.value;
     status('localStorage["vita/tmp"] ' + String(vi.value.length) + 'C written');
+    // TODO:
+  // } else if (match = command.match(/^w (.*?)$/)) {
+  //   filename = 'vita/' + match[1];
+  //   localStorage[filename] = vi.value;
+  //   status('localStorage["' + filename + '"] ' + String(vi.value.length) + 'C written');
+
   // } else if (command.match(/^%s\/([^\/]*)\/([^\/]*)\/[g]$/) {
   //   console.debug('got in');
   //   // console.debug(match);
@@ -80,6 +75,9 @@ vita.onsubmit = function(e) {
 
 vi.onblur = function (e) {
   mode(modes.NORMAL);
+
+  // // FIXME on iPhone
+  // vi.focus();
 };
 
 function status(newValue) {
@@ -97,6 +95,7 @@ function cursor(charIndex) {
     return vi.selectionStart;
   } else {
     vi.setSelectionRange(charIndex, charIndex);
+    // NOTE see also scrollHeight, scrollTop, etc.
     return charIndex;
   }
 }
@@ -152,93 +151,116 @@ function endOfLine() {
   return lineIndices(cursor())[1];
 }
 
-vi.onkeydown = function (e) {
+function actOn(character) {
+  switch (character) {
+    case '0':
+      cursor(beginningOfLine());
+      break;
+    case '$':
+      cursor(endOfLine());
+      break;
+    case 'A':
+      cursor(endOfLine());
+      mode(modes.INSERT);
+      break;
+    case 'a':
+      cursor(cursor() + 1);
+      mode(modes.INSERT);
+      break;
+    case 'I':
+      // NOTE Vim seems to do a cursor(cursor() - 1) here...
+      cursor(beginningOfLine());
+      // Fall through...
+    case 'i':
+      mode(modes.INSERT);
+      break;
+    case 'O':
+      // NOTE Not quite, but close enough for now.
+      cursor(beginningOfLine() - 1);
+      mode(modes.INSERT);
+      break;
+    case 'o':
+      cursor(endOfLine() + 1);
+      mode(modes.INSERT);
+      break;
+
+    case 'G':
+      cursor(vi.value.length);
+      break;
+    case 'g':
+      // NOTE this is Vim's 'gg' -- leaving it at one character for simplicity's sake right now
+      cursor(0);
+      break;
+
+    case 'h':
+      cursor(cursor() - 1);
+      break;
+    case 'j':
+      // Not quite, but close enough for now
+      cursor(endOfLine() + 1);
+      break;
+    case 'k':
+      // Not quite, but close enough for now
+      cursor(beginningOfLine() - 1);
+      break;
+    case 'l':
+      cursor(cursor() + 1);
+      break;
+
+    case 'u':
+      position = cursor();
+      // TODO store the cursor location in the state as well.
+      vi.value = state.undoBuffer;
+      cursor(position);
+      break;
+
+    case ':':
+      // TODO statusbar.value = ':';
+      statusbar.focus();
+      break;
+  }
+}
+
+function onKeyDown(e) {
   if (
-      e.keyCode === keys.ESC
-      || (e.ctrlKey && e.keyCode === keys['['])
+      e.keyCode === keyCodes.ESC
+      || (e.ctrlKey && e.keyCode === keyCodes['['])
     ) {
     mode(modes.NORMAL);
   }
 
-  // FIXME it seems that the iPhone doesn't handle the shift key in quite the same way.
-  console.log('e.keyCode: ' + e.keyCode);
-
   if (state.mode === modes.NORMAL) {
     e.preventDefault();
+    character = String.fromCharCode(e.keyCode);
+    
+    // It defaults to a capital, and you have to transform down:
+    if (!e.shiftKey) character = character.toLowerCase();
+    if (e.keyCode === 186) character = ':'; // not sure why this is required
 
-    switch (e.keyCode) {
-      case keys['0']:
-        cursor(beginningOfLine());
-        break;
-      case keys.$:
-        cursor(endOfLine());
-        break;
-      case keys.A:
-        if (e.shiftKey) {
-          cursor(endOfLine());
-        } else {
-          cursor(cursor() + 1);
-        }
-
-        mode(modes.INSERT);
-        break;
-      case keys.I:
-        if (e.shiftKey) {
-          cursor(beginningOfLine());
-        }
-        // Vim seems to do a cursor(cursor() - 1) here...
-
-        mode(modes.INSERT);
-        break;
-      case keys.O:
-        // Not quite, but close enough for now.
-        if (e.shiftKey) {
-          cursor(beginningOfLine() - 1);
-        } else {
-          cursor(endOfLine() + 1);
-        }
-
-        mode(modes.INSERT);
-        break;
-
-      case keys.G:
-        if (e.shiftKey) {
-          cursor(vi.value.length);
-        } else {
-          // NOTE this is Vim's 'gg' -- leaving it at one character for simplicity's sake right now
-          cursor(0);
-        }
-        break;
-
-      case keys.H:
-        cursor(cursor() - 1);
-        break;
-      case keys.J:
-        // Not quite, but close enough for now
-        cursor(endOfLine() + 1);
-        break;
-      case keys.K:
-        // Not quite, but close enough for now
-        cursor(beginningOfLine() - 1);
-        break;
-      case keys.L:
-        cursor(cursor() + 1);
-        break;
-
-      case keys.U:
-        position = cursor();
-        vi.value = state.undoBuffer;
-        cursor(position);
-        break;
-
-      case keys[':']:
-        // TODO statusbar.value = ':';
-        statusbar.focus();
-        break;
-    }
+    actOn(character);
   }
-};
+}
 
+function textInput(e) {
+  if (state.mode === modes.NORMAL) {
+    e.preventDefault();
+    actOn(e.data);
+  }
+}
+
+// TODO Use feature detection... if it's possible to tell whether shiftKey is handled properly on the iPhone that way...  the two methods work slightly differently and it's necessary to distinguish between desktop and mobile.
+if (navigator.userAgent.match(/iPhone/i)) {
+  // Use 'textInput' for Safari on the iPhone, not 'keydown'.  You can't tell the difference between 'i' and 'I' without it, only on iOS!
+  vi.addEventListener('textInput', textInput, true);
+  
+  // Not only that, it needs to be pretty small...
+  vi.rows = 9;
+  vi.cols = 30;
+} else {
+  vi.onkeydown = onKeyDown;
+}
+
+// TODO have it reload the last opened document.
 vi.value = localStorage['vita/tmp'];
 
 // // ...or have vita load itself :)
