@@ -248,7 +248,16 @@ function onKeyDown(e) {
     
     // It defaults to a capital, and you have to transform down:
     if (!e.shiftKey) character = character.toLowerCase();
-    if (e.keyCode === 186) character = ':'; // not sure why this is required
+
+    // And now the stuff that fromCharCode doesn't handle correctly:
+    switch (e.keyCode) {
+      case 52:
+        character = '$';
+        break;
+      case 186:
+        character = ':';
+        break;
+    }
 
     actOn(character);
   }
