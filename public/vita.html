@@ -1,13 +1,33 @@
 <!DOCTYPE html>
 <html lang="en" manifest="cache.manifest">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <title>vita - vi in a textarea</title>
+<meta name="viewport" content="width=device-width" />
 <style>
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
 #vita * {
   font-family: monospace;
   border: none;
   /* TODO is a block cursor style possible? */
+}
+
+#vi {
+  width: 99%;
+  margin: auto;
+}
+
+#statusbar {
+  width: 99%;
 }
 </style>
 <head>
@@ -15,16 +35,19 @@
 
 <form id="vita">
 <!-- TODO no autocompletion (e.g. the suggestions based on stats, rather than what you've entered before), no autocapitalization -->
-<textarea id="vi" rows="20" cols="80" autofocus="autofocus" autocomplete="off">
+<textarea id="vi" autofocus="autofocus" autocomplete="off">
 </textarea>
 <br />
-<input autocomplete="off" id="statusbar" style="width: 50em;" type="text" />
+<input autocomplete="off" id="statusbar" type="text" />
 </form>
 
 <script>
 var vita = document.getElementById('vita'),
     vi = document.getElementById('vi'),
     statusbar = document.getElementById('statusbar');
+
+// FIXME Not sure why, but this only works when I do it by hand:
+vi.style.height = '100%';
 
 var modes = {
   NORMAL: 0,
@@ -48,6 +71,20 @@ var keyCodes = {
 var state = {
   mode: modes.NORMAL,
   undoBuffer: undefined,
+};
+
+function edit(filename) {
+  var value;
+
+  localStorage['lastFilename'] = filename;
+  
+  if (value = localStorage['vita/' + filename]) {
+    vi.value = value;
+  } else {
+    vi.value = '';
+  }
+
+  status('');
 };
 
 function write(filename) {
@@ -80,6 +117,8 @@ vita.onsubmit = function(e) {
     write();
   } else if (match = command.match(/^w (.*?)$/)) {
     write(match[1]);
+  } else if (match = command.match(/^e (.*?)$/)) {
+    edit(match[1]);
   // } else if (command.match(/^%s\/([^\/]*)\/([^\/]*)\/[g]$/) {
   //   console.debug('got in');
   //   // console.debug(match);
@@ -89,6 +128,8 @@ vita.onsubmit = function(e) {
     //
     // Wrap in a self invoking function to keep the vita namespace from getting easily messed up
     status(eval("(function () {\n" + vi.value + "\n})();"));
+  } else if ('re' === command) {
+    document.location.reload();
   } else {
     status('Error: not a vita command: ' + command);
   }
@@ -340,12 +381,12 @@ if (navigator.userAgent.match(/iPhone/i)) {
   vi.onkeydown = onKeyDown;
 }
 
-// TODO have it reload the last opened document.
-vi.value = localStorage['vita/tmp'];
-state.undoBuffer = vi.value;
-
-// // ...or have vita load itself :)
+// // TODO have it reload the last opened document.
+vi.value = localStorage['vita/' + localStorage['lastFilename']];
+// ...or have vita load itself :)
 // vi.value = document.getElementsByTagName('script')[0].innerHTML;
+
+state.undoBuffer = vi.value;
 </script>
 </body>
 </html>
