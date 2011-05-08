@@ -83,6 +83,12 @@ vita.onsubmit = function(e) {
   // } else if (command.match(/^%s\/([^\/]*)\/([^\/]*)\/[g]$/) {
   //   console.debug('got in');
   //   // console.debug(match);
+  } else if ('js' === command) {
+    // Idea: good for a self hosting vita
+    // Basically short for '!js %'
+    //
+    // Wrap in a self invoking function to keep the vita namespace from getting easily messed up
+    status(eval("(function () {\n" + vi.value + "\n})();"));
   } else {
     status('Error: not a vita command: ' + command);
   }
