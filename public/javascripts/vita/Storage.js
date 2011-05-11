@@ -1,8 +1,5 @@
-/** @namespace */
-var vita;
-
 /**
- * Wrapper for Storage object (e.g. localStorage) to add convenience functions without polluting globals.
+ * Wrapper for Storage object to add convenience functions without polluting globals.
  * 
  * Example:
  * 

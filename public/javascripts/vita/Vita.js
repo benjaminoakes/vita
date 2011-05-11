@@ -1,8 +1,5 @@
-/** @namespace */
-var vita;
-
 /**
- * Vita: vi in a textarea
+ * Vita: vi in a textarea.
  * 
  * Example:
  * 

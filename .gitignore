@@ -3,3 +3,6 @@
 
 ## VIM
 *.sw[nop]
+
+## PROJECT::SPECIFIC
+doc/**/*
