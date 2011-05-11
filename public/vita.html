@@ -105,6 +105,17 @@ function write(filename) {
   }
 }
 
+function js(code) {
+  var response;
+
+  try {
+    response = eval("(function () {" + code + "})();");
+    status(response);
+  } catch (e) {
+    status(e.message);
+  }
+}
+
 vita.onsubmit = function(e) {
   e.preventDefault();
   var command = status(),
@@ -127,7 +138,7 @@ vita.onsubmit = function(e) {
     // Basically short for '!js %'
     //
     // Wrap in a self invoking function to keep the vita namespace from getting easily messed up
-    status(eval("(function () {\n" + vi.value + "\n})();"));
+    js(vi.value);
   } else if ('re' === command) {
     document.location.reload();
   } else {
