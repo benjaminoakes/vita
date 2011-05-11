@@ -1,0 +1,14 @@
+// JSDoc configuration
+{
+  // source files to use
+  _: ['public/javascripts/vita.js', 'public/javascripts/vita/'],
+  
+  // document all functions, even uncommented ones
+  a: true,
+  
+  // use this directory as the output directory
+  d: 'doc/js',
+  
+  // use this template
+  t: 'vendor/jsdoc_toolkit-2.4.0/templates/jsdoc'
+}
