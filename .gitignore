@@ -1,8 +1,0 @@
-## MAC OS
-.DS_Store
-
-## VIM
-*.sw[nop]
-
-## PROJECT::SPECIFIC
-doc/**/*
